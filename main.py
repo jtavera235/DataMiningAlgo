@@ -169,12 +169,16 @@ def jaccard_index(algo, tests, kn):
 # Parses the test CSV files
 def parse_test_csv(file_name):
     data = []
+    first_row = False
     with open(file_name, newline='') as csv_file:
         for row in csv.reader(csv_file):
                 attribute_data = []
-                for element in row:
-                    attribute_data.append(float(element))
-                data.append(attribute_data)
+                if not first_row:
+                    first_row = True
+                else:
+                    for element in row:
+                        attribute_data.append(float(element))
+                    data.append(attribute_data)
     return data
 
 if __name__ == '__main__':
