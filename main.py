@@ -177,7 +177,6 @@ def parse_test_csv(file_name):
                 data.append(attribute_data)
     return data
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     if len(sys.argv) != 3:
         print("Invalid usage. Valid argument is python3 main.py <test csv_file> <train csv file>")
