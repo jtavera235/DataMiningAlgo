@@ -168,7 +168,7 @@ class NaiveBayes:
 
 # Takes in the algorithm used and the data to predict and runs the algorithm on the test data and
 # computes the Jaccard Index once the algorithms are done predicting for each row
-def jaccard_index(algo, tests, kn):
+def jaccard_index(algo, tests, kn, knn_algo):
     expected_values = []
     results = []
     for test in tests:
@@ -177,7 +177,12 @@ def jaccard_index(algo, tests, kn):
         del test[-1]
         result = 0
         if kn:
-            result = algo.run(test, chi_squared_distance)
+            if knn_algo == "manhattan":
+                result = algo.run(test, manhattan_distance)
+            elif knn_algo == "euc":
+                result = algo.run(test, euclidean_distance)
+            elif knn_algo == "chi":
+                result = algo.run(test, chi_squared_distance)
         else:
             result = algo.run(test)
         print("Predicted:", result, "| Actual:", actual)
@@ -193,31 +198,28 @@ def jaccard_index(algo, tests, kn):
 # Parses the test CSV files
 def parse_test_csv(file_name):
     data = []
-    first_row = False
     with open(file_name, newline='') as csv_file:
         for row in csv.reader(csv_file):
                 attribute_data = []
-                if not first_row:
-                    first_row = True
-                else:
-                    for element in row:
-                        attribute_data.append(float(element))
-                    data.append(attribute_data)
+                for element in row:
+                    attribute_data.append(float(element))
+                data.append(attribute_data)
     return data
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        print("Invalid usage. Valid argument is python3 main.py <test csv_file> <train csv file>")
+    if len(sys.argv) != 4:
+        print("Invalid usage. Valid argument is python3 main.py <test csv_file> <train csv file> <manhattan|chi|euc>")
     test_file_name = sys.argv[1]
     train_file_name = sys.argv[2]
+    knn_algo = sys.argv[3]
     tests = parse_test_csv(test_file_name)
     # Put test data in this array
     naive_bayes = NaiveBayes()
     naive_bayes.parse_csv(train_file_name)
-    ji = jaccard_index(naive_bayes, tests, False)
+    ji = jaccard_index(naive_bayes, tests, False, knn_algo)
     print(f"Jacard Index for Naive Bayes is {ji}")
     k_nearest_neighbor = KNearestNeighbor()
     k_nearest_neighbor.parse_csv(train_file_name)
     tests = parse_test_csv(test_file_name)
-    ji2 = jaccard_index(k_nearest_neighbor, tests, True)
+    ji2 = jaccard_index(k_nearest_neighbor, tests, True, knn_algo)
     print(f"Jacard Index for K Nearest Neighbor is {ji2}")
