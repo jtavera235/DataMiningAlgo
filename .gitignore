@@ -3,3 +3,6 @@ fashion-mnist_test.csv
 fashion-mnist_train.csv
 glass.csv
 heart.csv
+.idea/
+.DS_Store
+venv/
