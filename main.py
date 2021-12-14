@@ -46,6 +46,7 @@ class KNearestNeighbor:
         return result
 
 
+# Computes the Euclidean distance between two vectors
 def chi_squared_distance(v1, v2):
     difference_squared_sum = 0
     for i in range(len(v2)):
