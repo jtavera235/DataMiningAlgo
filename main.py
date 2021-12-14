@@ -5,6 +5,7 @@ from math import sqrt
 from math import pi
 from math import exp
 
+# Represents the implementation of K Nearest Neighbor
 class KNearestNeighbor:
 
     def __init__(self):
@@ -26,6 +27,7 @@ class KNearestNeighbor:
                     self.data.append(attribute_data)
         self.k = round(math.sqrt(len(self.data)))
 
+    # Aggregates the training and test data to then compute the distance function passed as the second argument
     def run(self, data_to_predict, distance_function):
         self.data_to_predict = data_to_predict
         neighbors = []
@@ -39,6 +41,7 @@ class KNearestNeighbor:
             nearest_neighbors.append(self.data[current_neighbor[1]][-1])
         return  max(set(nearest_neighbors), key = nearest_neighbors.count)
 
+# Computes the Euclidean between two vectors
 def euclidean_distance(v1, v2):
     difference_squared_sum = 0
     for i in range(len(v2)):
@@ -46,6 +49,7 @@ def euclidean_distance(v1, v2):
         difference_squared_sum += math.pow(difference, 2)
     return math.sqrt(difference_squared_sum)
 
+# Represents the implementation of Naive Bayes
 class NaiveBayes:
 
     def __init__(self):
@@ -67,6 +71,7 @@ class NaiveBayes:
                         attribute_data.append(float(element))
                     self.data.append(attribute_data)
 
+    # Computes the standard deviation between a vector of values
     def compute_standard_deviation(self, values):
         sum_val = 0
         for v in values:
@@ -78,6 +83,7 @@ class NaiveBayes:
         variance = sum_val / float(len(values) - 1)
         return sqrt(variance)
 
+    # Itrerate through the data and for each column of the sub arrays, compute the mean, and standard deviation for them
     def compute_column_statistics(self, data):
         column_statistics = []
         # Zip the list of lists to compare all the same "indexes" for the list of lists together
@@ -138,8 +144,9 @@ class NaiveBayes:
         prediction = max(group_probabilities, key=group_probabilities.get)
         return prediction
 
-
-def jacard_index(algo, tests, kn):
+# Takes in the algorithm used and the data to predict and runs the algorithm on the test data and
+# computes the Jaccard Index once the algorithms are done predicting for each row
+def jaccard_index(algo, tests, kn):
     expected_values = []
     results = []
     for test in tests:
@@ -159,18 +166,15 @@ def jacard_index(algo, tests, kn):
             intersection += 1
     return intersection / (len(expected_values) + len(results) - intersection)
 
-def parse_csv(file_name):
+# Parses the test CSV files
+def parse_test_csv(file_name):
     data = []
-    in_first_line = False
     with open(file_name, newline='') as csv_file:
         for row in csv.reader(csv_file):
-         #   if in_first_line:
                 attribute_data = []
                 for element in row:
                     attribute_data.append(float(element))
                 data.append(attribute_data)
-          #  else:
-           #     in_first_line = True
     return data
 
 # Press the green button in the gutter to run the script.
@@ -179,14 +183,14 @@ if __name__ == '__main__':
         print("Invalid usage. Valid argument is python3 main.py <test csv_file> <train csv file>")
     test_file_name = sys.argv[1]
     train_file_name = sys.argv[2]
-    tests = parse_csv(test_file_name)
+    tests = parse_test_csv(test_file_name)
     # Put test data in this array
     naive_bayes = NaiveBayes()
     naive_bayes.parse_csv(train_file_name)
-    ji = jacard_index(naive_bayes, tests, False)
+    ji = jaccard_index(naive_bayes, tests, False)
     print(f"Jacard Index for Naive Bayes is {ji}")
     k_nearest_neighbor = KNearestNeighbor()
     k_nearest_neighbor.parse_csv(train_file_name)
-    tests = parse_csv(test_file_name)
-    ji2 = jacard_index(k_nearest_neighbor, tests, True)
+    tests = parse_test_csv(test_file_name)
+    ji2 = jaccard_index(k_nearest_neighbor, tests, True)
     print(f"Jacard Index for K Nearest Neighbor is {ji2}")
