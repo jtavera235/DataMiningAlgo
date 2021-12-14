@@ -7,7 +7,6 @@ from math import exp
 
 # Represents the implementation of K Nearest Neighbor
 class KNearestNeighbor:
-
     def __init__(self):
         self.data = []
         self.data_to_predict = []
@@ -27,27 +26,49 @@ class KNearestNeighbor:
                     self.data.append(attribute_data)
         self.k = round(math.sqrt(len(self.data)))
 
-    # Aggregates the training and test data to then compute the distance function passed as the second argument
-    def run(self, data_to_predict, distance_function):
-        self.data_to_predict = data_to_predict
+    def setup_neighbors(self, distance_function):
         neighbors = []
         for i in range(len(self.data)):
             current_data = self.data[i]
             neighbors.append((distance_function(current_data, self.data_to_predict), i))
         neighbors = sorted(neighbors, key=lambda x : x[0])
+        return neighbors
+
+    # Aggregates the training and test data to then compute the distance function passed as the second argument
+    def run(self, data_to_predict, distance_function):
+        self.data_to_predict = data_to_predict
+        neighbors = self.setup_neighbors(distance_function)
         nearest_neighbors = []
         for i in range(self.k):
             current_neighbor = neighbors[i]
             nearest_neighbors.append(self.data[current_neighbor[1]][-1])
-        return  max(set(nearest_neighbors), key = nearest_neighbors.count)
+        result = max(set(nearest_neighbors), key = nearest_neighbors.count)
+        return result
 
-# Computes the Euclidean between two vectors
+
+def chi_squared_distance(v1, v2):
+    difference_squared_sum = 0
+    for i in range(len(v2)):
+        difference = v1[i] - v2[i]
+        difference = math.pow(difference, 2)
+        if v1[i] + v2[i] != 0:
+            difference_squared_sum += difference / (v1[i] + v2[i])
+    return .5 * difference_squared_sum
+
+# Computes the Euclidean distance between two vectors
 def euclidean_distance(v1, v2):
     difference_squared_sum = 0
     for i in range(len(v2)):
         difference = v1[i] - v2[i]
         difference_squared_sum += math.pow(difference, 2)
     return math.sqrt(difference_squared_sum)
+
+# Computes the Manhattan distance between the two vectors
+def manhattan_distance(v1, v2):
+    difference_squared_sum = 0
+    for i in range(len(v2)):
+        difference = v1[i] - v2[i]
+    return difference_squared_sum
 
 # Represents the implementation of Naive Bayes
 class NaiveBayes:
@@ -151,12 +172,14 @@ def jaccard_index(algo, tests, kn):
     results = []
     for test in tests:
         expected_values.append(test[len(test) - 1])
-        del test[len(test) - 1]
+        actual = test[-1]
+        del test[-1]
         result = 0
         if kn:
-            result = algo.run(test, euclidean_distance)
+            result = algo.run(test, chi_squared_distance)
         else:
             result = algo.run(test)
+        print("Predicted:", result, "| Actual:", actual)
         results.append(result)
     intersection = 0
     for i in range(0, len(expected_values)):
